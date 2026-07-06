@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gesture engine — minimal example / 极简接入示例</title>
+<style>
+ body{ font-family:system-ui,-apple-system,"PingFang SC",sans-serif; max-width:540px; margin:24px auto; padding:0 16px; color:#222; }
+ h3{ margin:0 0 4px; } .sub{ color:#888; font-size:13px; margin:0 0 16px; }
+ #cam{ width:100%; background:#000; border-radius:8px; display:block; }
+ #out{ font-size:22px; margin:12px 0; min-height:30px; }
+ input,button{ font-size:14px; padding:8px 10px; border:1px solid #ccc; border-radius:8px; }
+ button{ background:#111; color:#fff; cursor:pointer; border:none; }
+ #status{ color:#888; font-size:13px; }
+</style>
+</head>
+<body>
+ <h3>✋ Gesture engine — minimal example</h3>
+ <p class="sub">极简接入示例:创建引擎 → 录一个手势 → 做手势时弹出结果。约 30 行。<br>
+    Create the engine → record one gesture → it pops up when you make it. ~30 lines.</p>
+
+ <!-- 1) 一个 canvas 画摄像头画面 / a canvas to draw the camera -->
+ <canvas id="cam" width="480" height="360"></canvas>
+ <div id="out">—</div>
+
+ <!-- 2) 填名字 + emoji(或图片),点录制 / type a name + emoji (or image), then record -->
+ <input id="name" value="Hi" size="8">
+ <input id="emoji" value="👋" size="3">
+ <button id="rec">Record / 录制</button>
+ <p id="status"></p>
+
+<script type="module">
+ import { createEngine } from "./engine.js";
+ const $ = s => document.querySelector(s);
+
+ // 3) 创建引擎:传入 canvas + 回调 / create the engine with a canvas + callbacks
+ const engine = await createEngine($("#cam"), {
+   onStatus:  t => $("#status").textContent = t,                              // 状态提示 / status text
+   onGesture: g => $("#out").textContent = g ? `${g.name} ${g.img || ""}` : "—"  // g 为 null = 中性/无 / g === null = none
+ });
+
+ // 4) 录一个手势:摆好姿势 → 准备 ~2s → 录 ~3s / record a gesture: pose → ~2s ready → ~3s record
+ $("#rec").onclick = () => engine.record({
+   label: "g_" + Date.now(),
+   name:  $("#name").value || "gesture",
+   img:   $("#emoji").value || "👋"        // emoji 或图片 dataURL 都行 / an emoji, or an image dataURL
+ });
+
+ // 之后对着摄像头做那个手势,#out 就会显示它。
+ // Then make that gesture at the camera and #out shows it.
+</script>
+</body>
+</html>

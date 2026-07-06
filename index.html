@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gesture Trainer</title>
+<style>
+ :root{ --bg:#f6f7f9; --card:#ffffff; --line:#e8eaef; --fg:#1c1e22; --mut:#8b909a; --accent:#ff5c85; }
+ *{ box-sizing:border-box; }
+ body{ margin:0; font-family:system-ui,-apple-system,"PingFang SC",sans-serif; background:var(--bg); color:var(--fg); }
+ header{ max-width:940px; margin:0 auto; padding:16px 16px 0; position:relative; }
+ header h1{ margin:0; font-size:17px; }
+ header p{ margin:5px 0 0; color:var(--mut); font-size:13px; line-height:1.5; }
+ header a{ color:var(--accent); text-decoration:none; font-weight:500; }
+ .topright{ position:absolute; top:14px; right:16px; display:flex; gap:8px; }
+ .tlink{ font-size:12px; color:var(--accent); cursor:pointer; border:1px solid var(--line); padding:5px 11px; border-radius:8px; background:var(--card); }
+ .tlink:hover{ background:rgba(255,92,133,.08); }
+ .wrap{ max-width:940px; margin:0 auto; padding:16px; display:grid; gap:16px; grid-template-columns:1fr 1fr; }
+ @media(max-width:760px){ .wrap{ grid-template-columns:1fr; } }
+ .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:0 1px 3px rgba(20,20,40,.04); }
+ .camwrap{ position:relative; background:#111; border-radius:10px; overflow:hidden; aspect-ratio:4/3; }
+ #cam{ width:100%; height:100%; display:block; }
+ #label{ position:absolute; left:10px; top:10px; background:rgba(0,0,0,.5); color:#7fffd4; padding:3px 10px; border-radius:6px; font-weight:600; font-size:14px; }
+ #output{ display:flex; align-items:center; justify-content:center; aspect-ratio:4/3; background:#f7f8fa; border:1px solid var(--line); border-radius:10px; margin-top:10px; overflow:hidden; }
+ #output img{ max-width:100%; max-height:100%; }
+ #output .emoji{ font-size:96px; line-height:1; }
+ #output .hint{ color:var(--mut); font-size:13px; padding:20px; text-align:center; }
+ .field{ display:block; font-size:12px; color:var(--mut); margin:12px 0 5px; }
+ input[type=text]{ width:100%; padding:9px 11px; background:#fff; border:1px solid var(--line); border-radius:9px; color:var(--fg); font-size:14px; }
+ input[type=text]:focus{ outline:none; border-color:var(--accent); }
+ .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+ button{ padding:9px 13px; border-radius:9px; border:1px solid var(--line); background:#f4f5f7; color:#333; cursor:pointer; font-size:13px; }
+ button:hover{ background:#eceef1; }
+ button.primary{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+ button.primary:hover{ background:#f5487a; }
+ .status{ color:var(--accent); font-size:12px; min-height:16px; margin-top:10px; }
+ .gestures{ display:grid; grid-template-columns:repeat(auto-fill,minmax(78px,1fr)); gap:8px; margin-top:12px; }
+ .g{ text-align:center; font-size:12px; }
+ .g .thumb{ width:100%; aspect-ratio:1; border-radius:9px; background:#f4f5f7; display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid var(--line); }
+ .g .thumb img{ width:100%; height:100%; object-fit:cover; }
+ .g .thumb .emoji{ font-size:32px; }
+ .g .name{ margin-top:3px; }
+ .g .del{ color:#e05a7a; cursor:pointer; font-size:11px; }
+ .guide summary{ cursor:pointer; font-weight:600; font-size:14px; list-style:none; }
+ .guide summary::-webkit-details-marker{ display:none; }
+ .guide summary::before{ content:"▸ "; color:var(--accent); }
+ .guide details[open] summary::before{ content:"▾ "; }
+ .guide ol{ margin:12px 0 0; padding-left:22px; line-height:1.75; font-size:13.5px; }
+ .guide li{ margin-bottom:8px; }
+ .guide .tip{ margin:10px 0 0; font-size:12.5px; color:var(--mut); line-height:1.65; background:rgba(128,128,140,.08); border:1px solid var(--line); border-radius:9px; padding:9px 11px; }
+ footer{ max-width:940px; margin:4px auto 0; padding:14px 16px 30px; color:var(--mut); font-size:12px; line-height:1.65; border-top:1px solid var(--line); }
+ footer a{ color:var(--accent); text-decoration:none; }
+ #overlay{ position:fixed; inset:0; background:rgba(20,22,30,.5); display:none; align-items:center; justify-content:center; z-index:100; padding:16px; }
+ #overlay.show{ display:flex; }
+ #langpick{ position:fixed; inset:0; background:rgba(20,22,30,.55); display:none; align-items:center; justify-content:center; z-index:110; padding:16px; }
+ #langpick.show{ display:flex; }
+ #langpick .lp{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:26px; text-align:center; box-shadow:0 12px 44px rgba(0,0,0,.22); max-width:340px; width:100%; }
+ #langpick .lp h2{ margin:0 0 4px; font-size:16px; }
+ #langpick .lp p{ margin:0 0 18px; color:var(--mut); font-size:12px; }
+ #langpick .lpbtns{ display:flex; gap:10px; }
+ #langpick .lpbtns button{ flex:1; padding:12px; font-size:15px; font-weight:600; }
+ #modal{ background:var(--card); color:var(--fg); border:1px solid var(--line); border-radius:14px; max-width:520px; width:100%; max-height:86vh; display:flex; flex-direction:column; box-shadow:0 12px 44px rgba(0,0,0,.22); }
+ #modal .mhead{ padding:15px 18px; border-bottom:1px solid var(--line); display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+ #modal h2{ margin:0; font-size:16px; }
+ #modal .msub{ color:var(--mut); font-size:12px; margin-top:3px; }
+ #modal .mlang{ font-size:12px; color:var(--accent); cursor:pointer; border:1px solid var(--line); border-radius:7px; padding:4px 9px; white-space:nowrap; background:transparent; }
+ #modal .mbody{ padding:14px 18px; overflow-y:auto; font-size:13px; line-height:1.62; }
+ #modal .mintro{ margin:0 0 10px; }
+ #modal ol{ margin:0; padding-left:20px; }
+ #modal ol li{ margin-bottom:8px; }
+ #modal .mfoot{ padding:12px 18px 15px; border-top:1px solid var(--line); display:flex; gap:8px; justify-content:flex-end; }
+</style>
+</head>
+<body>
+ <header>
+   <h1>✋ Gesture Trainer <span style="color:var(--mut);font-weight:400;font-size:13px" id="tag"></span></h1>
+   <p id="desc"></p>
+   <p id="credit" style="margin-top:3px"></p>
+   <p id="thanks" style="margin-top:3px"></p>
+   <div class="topright"><button class="tlink" id="langBtn"></button><button class="tlink" id="openTerms"></button></div>
+ </header>
+ <div id="langpick"><div class="lp">
+   <h2>✋ Gesture Trainer</h2>
+   <p>选择语言 · Choose your language</p>
+   <div class="lpbtns"><button data-l="zh">中文</button><button data-l="en">English</button></div>
+ </div></div>
+ <div id="overlay">
+   <div id="modal">
+     <div class="mhead">
+       <div><h2 id="mtitle"></h2><div class="msub" id="msub"></div></div>
+       <button class="mlang" id="mlang"></button>
+     </div>
+     <div class="mbody"><p class="mintro" id="mintro"></p><ol id="mitems"></ol></div>
+     <div class="mfoot"><button id="mclose" style="display:none"></button><button class="primary" id="magree"></button></div>
+   </div>
+ </div>
+ <div class="wrap">
+   <div class="card guide" style="grid-column:1/-1">
+     <details open><summary id="guideTitle"></summary><div id="guideBody"></div></details>
+   </div>
+   <div class="card">
+     <div class="camwrap"><canvas id="cam" width="480" height="360"></canvas><div id="label"></div></div>
+     <div id="output"></div>
+   </div>
+   <div class="card">
+     <strong style="font-size:14px" id="trainTitle"></strong>
+     <div class="field" id="step1"></div>
+     <div class="row">
+       <button id="pick"></button>
+       <span style="color:var(--mut);font-size:12px" id="orWord"></span>
+       <input type="text" id="emoji" placeholder="😆" style="width:64px;text-align:center">
+       <img id="prev" style="width:40px;height:40px;object-fit:cover;border-radius:6px;display:none">
+       <input type="file" id="file" accept="image/*" hidden>
+     </div>
+     <div class="field" id="step2"></div>
+     <input type="text" id="name">
+     <div class="field" id="step3"></div>
+     <div class="row"><button id="rec" class="primary"></button><button id="recNeutral"></button></div>
+     <div class="status" id="status"></div>
+     <div class="gestures" id="list"></div>
+     <div class="row" style="margin-top:12px"><button id="export"></button><button id="clear"></button></div>
+   </div>
+ </div>
+ <footer id="footer"></footer>
+<script type="module">
+ import { createEngine } from "./engine.js";
+ const $=s=>document.querySelector(s);
+ const cam=$("#cam"), label=$("#label"), out=$("#output"), status=$("#status");
+ let pendingImg=null, lastG=null, engineReady=false, camFailed=false, engine;
+ const STR={};
+
+ const I18N={
+   zh:{
+     tag:"— 手势识别引擎 demo",
+     desc:"录制学习法 / KNN 手势识别 · 上传你自己的图 + 录你自己的手势,做手势就弹出来。",
+     credit:'原作品网站 <a href="https://gestomeme.com" target="_blank">gestomeme.com</a> · 原作者 @hi.jessie',
+     thanks:"感谢大家的信任和支持 🙏",
+     terms:"使用条款",
+     guideTitle:"📖 怎么用(点开 / 收起)",
+     guideBody:`<ol>
+       <li><b>开摄像头</b>:第一次会问,点「允许」。电脑或手机都行,让上半身、手都能入镜。</li>
+       <li><b>教它一个手势 = 上传图 + 录动作</b>(在右边「教它一个新手势」面板):
+         <br>① 点「📁 选图片」上传<b>你自己的表情包</b>(或在小框里填一个 emoji,如 😆);
+         <br>② 给这个手势<b>起个名字</b>(比如「比心」「举手」);
+         <br>③ 对着摄像头<b>摆好你想用的手势/姿势</b>,点「● 录制手势」→ 看到"准备"倒数后<b>保持姿势约 3 秒</b>录完。</li>
+       <li><b>开始玩</b>:对着摄像头做那个手势,<b>对应的图/emoji 就会弹在左边</b>。想加更多手势就重复第 2 步。</li>
+     </ol>
+     <p class="tip">💡 <b>想更准</b>:同一个手势<b>用相同名字多录几次</b>(会自动累加样本);再点「🧘 录中性」录几段"放松、不做手势"的样子,这样你没比手势时就不会乱弹。手势之间<b>动作差别越大越好认</b>。</p>
+     <p class="tip">💾 <b>数据在哪</b>:你训练的手势只存在<b>你自己的浏览器</b>里,不会上传到任何服务器。点「导出样本 json」可备份;换设备或清缓存会清空,重训即可。</p>`,
+     outHint:"做一个你训练过的手势,结果出现在这里 👋",
+     neutral:"中性", loading:"载入中…", noCam:"无摄像头",
+     trainTitle:"➕ 教它一个新手势",
+     step1:"1) 上传你自己的表情包图,或填一个 emoji", pick:"📁 选图片", or:"或",
+     step2:"2) 给这个手势起个名字", namePh:"比如:举手 / 比心 / 双手抱头",
+     step3:"3) 摆好姿势 → 点录制(准备 ~2 秒,录制 ~3 秒)",
+     rec:"● 录制手势", recNeutral:"🧘 录中性", export:"💾 导出样本 json", clear:"清空全部",
+     footer:'本作品免费分享,使用请保留原作者署名 @hi.jessie 与原作品 <a href="https://gestomeme.com" target="_blank">gestomeme.com</a>;商业使用请事先联系作者授权。完整条款见 SKILL.md。<br>手势 / 姿态识别基于 Google 开源的 <a href="https://github.com/google-ai-edge/mediapipe" target="_blank">MediaPipe</a>(Apache-2.0)。',
+     needCam:"⚠ 需要摄像头权限,且用 https 或 localhost 打开。",
+     nameFirst:"⚠ 先起个名字", pickFirst:"⚠ 先选张图或填个 emoji",
+     getReady:"准备…摆好手势", recNeutralMsg:"录中性…保持放松、不做手势",
+     prep:"准备 ", recing:"录制中 ", confirmClear:"清空所有训练?",
+     loadingModel:"加载模型中…(首次要下载几 MB)", ready:"好了!上传图 + 录个手势试试 👋",
+     storageFull:"⚠ 浏览器存储已满,样本太多了", learned:(n)=>"✓ 学会「"+n+"」啦,比比看",
+     tTitle:"使用条款", tSub:"原作品:gestomeme.com · 作者:@hi.jessie",
+     tIntro:"本作品(手势识别引擎)免费分享,欢迎自由使用、修改与二次创作。点击「同意并继续」即表示您已阅读并同意以下条款。",
+     tItems:[
+       ["授权范围","可免费用于个人、学习及非商业性用途,并可修改与二次开发。"],
+       ["署名","使用或二次创作时,请保留原作者署名「@hi.jessie」及原作品链接「gestomeme.com」;请勿冒充为您的原创作品发布。"],
+       ["商业使用","如需用于商业用途(销售、付费服务或课程、商业产品、广告变现、企业或品牌推广等),请事先联系作者获得授权。"],
+       ["图像内容","本作品不含任何表情包或第三方图像。您上传的图像其版权与合规由您自行承担,与原作者无关。"],
+       ["第三方组件","手势检测依赖 MediaPipe(@mediapipe/tasks-vision),受其开源许可约束。"],
+       ["免责声明","本作品按「现状」提供,不对识别准确性、稳定性或适用性作任何担保,使用风险自负。"],
+       ["联系","商业授权或合作,请通过小红书私信 @hi.jessie,或邮件 jiaxiwang.au@gmail.com。"]
+     ], tAgree:"同意并继续", tClose:"关闭"
+   },
+   en:{
+     tag:"— gesture-recognition engine demo",
+     desc:"Record-and-learn (KNN) gesture recognition. Upload your own images, record your own gestures, and they pop up when you make them.",
+     credit:'Original work <a href="https://gestomeme.com" target="_blank">gestomeme.com</a> · by @hi.jessie',
+     thanks:"Thank you for your trust and support.",
+     terms:"Terms",
+     guideTitle:"📖 How to use (tap to expand)",
+     guideBody:`<ol>
+       <li><b>Turn on the camera</b>: allow access when asked. Works on a computer or phone; keep your upper body and hands in frame.</li>
+       <li><b>Teach a gesture = upload an image + record the motion</b> (in the "Teach it a new gesture" panel on the right):
+         <br>① Click "📁 Choose image" to upload <b>your own picture</b> (or type an emoji, e.g. 😆);
+         <br>② Give the gesture <b>a name</b> (e.g. "Heart", "Raise hand");
+         <br>③ <b>Pose the gesture</b> at the camera, click "● Record gesture" → after the "Ready" countdown, <b>hold the pose for about 3 seconds</b>.</li>
+       <li><b>Play</b>: make that gesture at the camera and <b>the matching image/emoji pops up on the left</b>. Repeat step 2 to add more gestures.</li>
+     </ol>
+     <p class="tip">💡 <b>For better accuracy</b>: record the same gesture <b>a few times using the same name</b> (samples add up); also click "🧘 Record neutral" a few times (relaxed, no gesture) so nothing pops up when you are not gesturing. The <b>more different</b> your gestures look, the easier to tell apart.</p>
+     <p class="tip">💾 <b>Where the data lives</b>: your trained gestures are stored <b>only in your own browser</b> and are never uploaded. Click "Export samples (json)" to back up; clearing your browser or switching devices resets it (just retrain).</p>`,
+     outHint:"Do a gesture you trained — the result shows here 👋",
+     neutral:"neutral", loading:"Loading…", noCam:"No camera",
+     trainTitle:"➕ Teach it a new gesture",
+     step1:"1) Upload your own image, or type an emoji", pick:"📁 Choose image", or:"or",
+     step2:"2) Name this gesture", namePh:"e.g. Raise hand / Heart / Hands on head",
+     step3:"3) Pose it → hit record (get ready ~2s, record ~3s)",
+     rec:"● Record gesture", recNeutral:"🧘 Record neutral", export:"💾 Export samples (json)", clear:"Clear all",
+     footer:'Free to use. Please keep attribution to @hi.jessie and the original work <a href="https://gestomeme.com" target="_blank">gestomeme.com</a>; commercial use requires prior authorization. See SKILL.md for full terms.<br>Pose &amp; hand detection powered by Google\'s open-source <a href="https://github.com/google-ai-edge/mediapipe" target="_blank">MediaPipe</a> (Apache-2.0).',
+     needCam:"⚠ Camera permission required; open via https or localhost.",
+     nameFirst:"⚠ Name it first", pickFirst:"⚠ Choose an image or type an emoji first",
+     getReady:"Get ready… pose", recNeutralMsg:"Recording neutral… stay relaxed, no gesture",
+     prep:"Ready ", recing:"Rec ", confirmClear:"Clear all training?",
+     loadingModel:"Loading model… (a few MB the first time)", ready:"Ready! Upload an image and record a gesture 👋",
+     storageFull:"⚠ Browser storage is full — too many samples", learned:(n)=>'✓ Learned "'+n+'"! Try it',
+     tTitle:"Terms of Use", tSub:"Original work: gestomeme.com · Author: @hi.jessie",
+     tIntro:'This gesture-recognition engine is shared free of charge. You are welcome to use, modify, and build upon it. Clicking "Agree & Continue" means you have read and accept the terms below.',
+     tItems:[
+       ["Grant of Use","Free for personal, educational, and non-commercial use; you may modify it and create derivative works."],
+       ["Attribution",'When using or adapting it, please keep attribution to "@hi.jessie" and the original work link "gestomeme.com", and do not present it as your own original creation.'],
+       ["Commercial Use","For any commercial use (sale, paid services or courses, commercial products, advertising or monetization, corporate or brand promotion, etc.), please contact the author in advance for authorization."],
+       ["Image Content","This package contains no meme or third-party images. You are solely responsible for the rights and compliance of any images you upload."],
+       ["Third-Party","Gesture detection uses MediaPipe (@mediapipe/tasks-vision), under its own open-source license."],
+       ["Disclaimer",'Provided "as is", without warranty as to accuracy, stability, or fitness for any purpose. Use at your own risk.'],
+       ["Contact","For commercial licensing or collaboration, DM @hi.jessie on Xiaohongshu, or email jiaxiwang.au@gmail.com."]
+     ], tAgree:"Agree & Continue", tClose:"Close"
+   }
+ };
+
+ const savedLang = localStorage.getItem("gesto_lang");
+ let cur = savedLang || ((navigator.language||"").toLowerCase().startsWith("zh") ? "zh" : "en");
+ const overlay=$("#overlay");
+ const thumb=img=> img&&img.startsWith("data:") ? `<img src="${img}">` : `<div class="emoji">${img||"❓"}</div>`;
+
+ function showOutput(g){ const t=I18N[cur];
+   if(!g){ out.innerHTML='<div class="hint">'+t.outHint+'</div>'; label.textContent=t.neutral; label.style.color="#ccc"; return; }
+   label.textContent=g.name; label.style.color="#7fffd4";
+   out.innerHTML = g.img&&g.img.startsWith("data:") ? `<img src="${g.img}">` : `<div class="emoji">${g.img||"❓"}</div>`; }
+ function renderList(){ const gs=engine?engine.gestures():[];
+   $("#list").innerHTML=gs.map(g=>`<div class="g"><div class="thumb">${thumb(g.img)}</div><div class="name">${g.name}${g.count?` ✓${g.count}`:""}</div><div class="del" data-l="${g.label}"></div></div>`).join("");
+   const delTxt = cur==="zh"?"删除":"delete";
+   $("#list").querySelectorAll(".del").forEach(b=>{ b.textContent=delTxt; b.onclick=()=>{ engine.remove(b.dataset.l); renderList(); }; }); }
+ function renderTerms(){ const t=I18N[cur];
+   $("#mtitle").textContent=t.tTitle; $("#msub").textContent=t.tSub; $("#mintro").textContent=t.tIntro;
+   $("#mitems").innerHTML=t.tItems.map(x=>`<li><b>${x[0]}:</b> ${x[1]}</li>`).join("");
+   $("#magree").textContent=t.tAgree; $("#mclose").textContent=t.tClose; $("#mlang").textContent=cur==="zh"?"EN":"中文"; }
+
+ function applyLang(lang){ cur=lang; const t=I18N[lang];
+   document.documentElement.lang = lang;
+   $("#tag").textContent=t.tag; $("#desc").textContent=t.desc; $("#credit").innerHTML=t.credit; $("#thanks").textContent=t.thanks;
+   $("#openTerms").textContent=t.terms; $("#langBtn").textContent = lang==="zh"?"EN":"中文";
+   $("#guideTitle").textContent=t.guideTitle; $("#guideBody").innerHTML=t.guideBody;
+   $("#trainTitle").textContent=t.trainTitle; $("#step1").textContent=t.step1; $("#pick").textContent=t.pick;
+   $("#orWord").textContent=t.or; $("#step2").textContent=t.step2; $("#name").placeholder=t.namePh; $("#step3").textContent=t.step3;
+   $("#rec").textContent=t.rec; $("#recNeutral").textContent=t.recNeutral; $("#export").textContent=t.export; $("#clear").textContent=t.clear;
+   $("#footer").innerHTML=t.footer;
+   STR.loadingModel=t.loadingModel; STR.ready=t.ready; STR.storageFull=t.storageFull; STR.learned=t.learned;
+   if(camFailed){ label.textContent=t.noCam; label.style.color="#f88"; }
+   else if(!engineReady){ label.textContent=t.loading; label.style.color="#7fffd4"; }
+   else showOutput(lastG);
+   renderList(); renderTerms(); }
+
+ function setLang(lang){ try{localStorage.setItem("gesto_lang",lang);}catch(e){} applyLang(lang); }
+ function toggleLang(){ setLang(cur==="zh"?"en":"zh"); }
+ function openTerms(gate){ renderTerms(); overlay.dataset.gate=gate?"1":"";
+   $("#magree").style.display=gate?"inline-block":"none"; $("#mclose").style.display=gate?"none":"inline-block"; overlay.classList.add("show"); }
+
+ $("#langBtn").onclick=toggleLang;
+ $("#mlang").onclick=toggleLang;
+ $("#magree").onclick=()=>{ try{localStorage.setItem("gesto_terms_agreed","1");}catch(e){} overlay.classList.remove("show"); };
+ $("#mclose").onclick=()=>overlay.classList.remove("show");
+ $("#openTerms").onclick=()=>openTerms(false);
+ overlay.onclick=e=>{ if(e.target===overlay && overlay.dataset.gate!=="1") overlay.classList.remove("show"); };
+
+ $("#pick").onclick=()=>$("#file").click();
+ $("#file").onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+   r.onload=()=>{ pendingImg=r.result; const p=$("#prev"); p.src=pendingImg; p.style.display="inline-block"; $("#emoji").value=""; }; r.readAsDataURL(f); };
+ $("#emoji").oninput=()=>{ if($("#emoji").value){ pendingImg=null; $("#prev").style.display="none"; } };
+
+ applyLang(cur);
+ function afterLang(){ if(!localStorage.getItem("gesto_terms_agreed")) openTerms(true); }
+ if(!savedLang){                                            // 首次:先让用户选语言 / first visit: pick language first
+   const lp=$("#langpick"); lp.classList.add("show");
+   lp.querySelectorAll("button").forEach(b=>b.onclick=()=>{ setLang(b.dataset.l); lp.classList.remove("show"); afterLang(); });
+ } else { afterLang(); }
+
+ try{
+   engine = await createEngine(cam, {
+     strings: STR,
+     onStatus:t=>status.textContent=t,
+     onGesture:g=>{ lastG=g; showOutput(g); },
+     onRecordProgress:(phase,val)=>{ const t=I18N[cur];
+       if(phase==="prep"){ label.textContent=t.prep+val; label.style.color="#fd0"; }
+       else if(phase==="rec"){ label.textContent=t.recing+val+"s"; label.style.color="#f55"; }
+       else if(phase==="done"){ renderList(); } }
+   });
+   engineReady=true; renderList();
+ }catch(e){ camFailed=true; status.textContent=I18N[cur].needCam; label.textContent=I18N[cur].noCam; label.style.color="#f88"; }
+
+ $("#rec").onclick=()=>{ if(!engine) return; const t=I18N[cur]; const name=$("#name").value.trim();
+   if(!name){ status.textContent=t.nameFirst; return; }
+   const existing=engine.gestures().find(g=>g.name===name);
+   if(!existing && !pendingImg && !$("#emoji").value){ status.textContent=t.pickFirst; return; }
+   engine.record({ label: existing?existing.label:"g_"+Date.now(), name, img: existing?undefined:(pendingImg||$("#emoji").value) });
+   status.textContent=t.getReady; };
+ $("#recNeutral").onclick=()=>{ if(engine){ engine.record({ neutral:true }); status.textContent=I18N[cur].recNeutralMsg; } };
+ $("#export").onclick=()=>{ if(!engine) return; const blob=new Blob([engine.export()],{type:"application/json"});
+   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="samples.json"; a.click(); };
+ $("#clear").onclick=()=>{ if(engine&&confirm(I18N[cur].confirmClear)){ engine.clearAll(); renderList(); lastG=null; showOutput(null); } };
+</script>
+</body>
+</html>
