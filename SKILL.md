@@ -5,6 +5,10 @@
 
 > 这是原作品 [gestomeme.com](https://gestomeme.com)(作者 @hi.jessie)的**识别引擎**部分,抽出来做成可复用的独立模块。感谢大家的信任和支持 🙏
 
+> **📄 授权:免费个人 & 非商业使用 · 使用请保留署名(@hi.jessie / gestomeme.com)· ⚠️ 未经授权不得商用**
+> Free for personal & non-commercial use · keep attribution · ⚠️ no commercial use without permission.
+> (完整条款见下方「使用条款 / Terms of Use」)
+
 ## 怎么跑
 
 需要**摄像头** + 在 **https 或 localhost** 下打开(浏览器安全限制)。
