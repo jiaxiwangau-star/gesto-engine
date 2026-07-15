@@ -59,11 +59,13 @@ MediaPipe `@mediapipe/tasks-vision`(pose + hand,lite 模型,CDN 加载)提取关
 
 ## 📄 授权 · License
 
-**© 2026 Hi.jessie(@hi.jessie)· gestomeme.com — 保留所有权利(下述许可除外)**
+本项目采用 **[PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)**(源码可见 · source-available):
 
-- ✅ **免费用于个人、学习、研究等【非商业】用途**;使用请**保留署名**(@hi.jessie / gestomeme.com)。
-  Free for personal / learning / **non-commercial** use; **keep the attribution**.
-- ❌ **未经作者书面许可,禁止任何商业用途 / 转售 / 再授权**。
-  **No commercial use / resale / sublicensing** without the author's written permission.
+- ✅ **个人、学习、研究等【非商业】用途**免费使用、修改、分发;分发时须**保留条款与署名**(Required Notice)。
+  Free to use, modify and share for **non-commercial** purposes; keep the license terms and the Required Notice when distributing.
+- ❌ **禁止任何商业用途**(含转售、再授权、用于收费产品/服务)。
+  **No commercial use** (incl. resale, sublicensing, or use in any paid product/service).
+
+Required Notice: Copyright (c) 2026 Hi.jessie (@hi.jessie) · gestomeme.com
 
 完整条款见 [`LICENSE`](./LICENSE)。**商用授权请联系 · For a commercial licence:** jiaxiwang.au@gmail.com
