@@ -68,4 +68,4 @@ MediaPipe `@mediapipe/tasks-vision`(pose + hand,lite 模型,CDN 加载)提取关
 
 Required Notice: Copyright (c) 2026 Hi.jessie (@hi.jessie) · gestomeme.com
 
-完整条款见 [`LICENSE`](./LICENSE)。**商用授权请联系 · For a commercial licence:** jiaxiwang.au@gmail.com
+完整条款见 [`LICENSE`](./LICENSE)。**商用授权请联系 · For a commercial licence:** hijessie.au@gmail.com

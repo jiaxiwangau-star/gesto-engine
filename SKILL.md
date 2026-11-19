@@ -74,7 +74,7 @@ engine.remove(label); engine.clearAll(); engine.export();
 4. **图像内容**:本作品不包含任何表情包或第三方图像。您自行上传的图像,其版权、授权及合规性由您自行承担,与原作者无关。
 5. **第三方组件**:本作品的姿态与手势检测依赖 MediaPipe(`@mediapipe/tasks-vision`),其使用受各自开源许可约束。
 6. **免责声明**:本作品按"现状"提供,不对识别准确性、稳定性或对特定用途的适用性作任何明示或默示担保,使用风险由使用者自行承担。
-7. **联系**:商业授权或商务合作,请通过小红书私信联系 @hi.jessie,或邮件 jiaxiwang.au@gmail.com。
+7. **联系**:商业授权或商务合作,请通过小红书私信联系 @hi.jessie,或邮件 hijessie.au@gmail.com。
 
 ## Terms of Use
 
@@ -88,7 +88,7 @@ This Work (the gesture-recognition engine) is shared free of charge. You are wel
 4. **Image Content.** The Work contains no meme images or third-party images. You are solely responsible for the rights, licensing, and compliance of any images you upload; the author bears no responsibility in this regard.
 5. **Third-Party Components.** Pose and hand detection rely on MediaPipe (`@mediapipe/tasks-vision`), governed by its respective open-source license.
 6. **Disclaimer.** The Work is provided "as is," without warranty of any kind as to recognition accuracy, stability, or fitness for a particular purpose. You assume all risks arising from its use.
-7. **Contact.** For commercial licensing or collaboration, please contact @hi.jessie via Xiaohongshu direct message, or email jiaxiwang.au@gmail.com.
+7. **Contact.** For commercial licensing or collaboration, please contact @hi.jessie via Xiaohongshu direct message, or email hijessie.au@gmail.com.
 
 ## 致谢 / Credits
 
